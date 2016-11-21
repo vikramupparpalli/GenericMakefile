@@ -72,30 +72,17 @@ debug: export BUILD_PATH := build/debug
 debug: export BIN_PATH := bin/debug
 install: export BIN_PATH := bin/release
 
-# Find all source files in the source directory, sorted by most
-# recently modified
-SOURCES = $(shell find $(SRC_PATH)/ -name '*.$(SRC_EXT)' -printf '%T@\t%p\n' \
-					| sort -k 1nr | cut -f2-)
 # fallback in case the above fails
 rwildcard = $(foreach d, $(wildcard $1*), $(call rwildcard,$d/,$2) \
 						$(filter $(subst *,%,$2), $d))
-ifeq ($(SOURCES),)
-	SOURCES := $(call rwildcard, $(SRC_PATH)/, *.$(SRC_EXT))
-endif
+						
+SOURCES := $(call rwildcard, $(SRC_PATH)/, *.$(SRC_EXT))
 
 # Set the object file names, with the source directory stripped
 # from the path, and the build path prepended in its place
 OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
 # Set the dependency files that will be used to add header dependencies
 DEPS = $(OBJECTS:.o=.d)
-
-# Macros for timing compilation
-TIME_FILE = $(dir $@).$(notdir $@)_time
-START_TIME = date '+%s' > $(TIME_FILE)
-END_TIME = read st < $(TIME_FILE) ; \
-	$(RM) $(TIME_FILE) ; \
-	st=$$((`date '+%s'` - $$st - 86400)) ; \
-	echo `date -u -d @$$st '+%H:%M:%S'`
 
 # Version macros
 # Comment/remove this section to remove versioning
@@ -146,18 +133,6 @@ dirs:
 	@echo "Creating directories"
 	@mkdir -p $(dir $(OBJECTS))
 	@mkdir -p $(BIN_PATH)
-
-# Installs to the set path
-.PHONY: install
-install:
-	@echo "Installing to $(DESTDIR)$(INSTALL_PREFIX)/bin"
-	@$(INSTALL_PROGRAM) $(BIN_PATH)/$(BIN_NAME) $(DESTDIR)$(INSTALL_PREFIX)/bin
-
-# Uninstalls the program
-.PHONY: uninstall
-uninstall:
-	@echo "Removing $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)"
-	@$(RM) $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)
 
 # Removes all build files
 .PHONY: clean
