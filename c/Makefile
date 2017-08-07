@@ -75,7 +75,7 @@ install: export BIN_PATH := bin/release
 # fallback in case the above fails
 rwildcard = $(foreach d, $(wildcard $1*), $(call rwildcard,$d/,$2) \
 						$(filter $(subst *,%,$2), $d))
-						
+
 SOURCES := $(call rwildcard, $(SRC_PATH)/, *.$(SRC_EXT))
 
 # Set the object file names, with the source directory stripped

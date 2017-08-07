@@ -1,10 +1,14 @@
-#include <stdio.h>
+#include "print.h"
 
 int main(int argc, char* argv[])
 {
   // suppress warnings
   (void)argc; (void)argv;
 
-  printf("Hello World!\n");
+  printEntry();
+  printProcessing();
+  printMessage("helloWorld");
+  printExit();
+
   return 0;
 }
